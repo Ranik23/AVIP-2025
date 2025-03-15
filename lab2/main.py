@@ -3,18 +3,13 @@ import numpy as np
 import os
 
 def rgb_to_grayscale(image):
-    """
-    Преобразует цветное изображение в полутоновое (грейскейл)
-    с использованием взвешенного среднего.
-    """
+
     image_array = np.array(image)
     grayscale_array = np.uint8(0.299 * image_array[:, :, 0] + 0.587 * image_array[:, :, 1] + 0.114 * image_array[:, :, 2])
     return Image.fromarray(grayscale_array)
 
 def adaptive_threshold_nick(image, window_size=3, k=-0.2):
-    """
-    Реализует адаптивную бинаризацию методом NICK.
-    """
+
     image_array = np.array(image)
     half_size = window_size // 2
     padded = np.pad(image_array, pad_width=half_size, mode='edge')
@@ -31,25 +26,20 @@ def adaptive_threshold_nick(image, window_size=3, k=-0.2):
     return Image.fromarray(result)
 
 
-# Папка с изображениями
 input_folder = 'pictures_src/'
 output_folder = 'pictures_results/'
 
-# Создаем выходную папку, если её нет
 os.makedirs(output_folder, exist_ok=True)
 
-# Обрабатываем все PNG изображения в папке
 for filename in os.listdir(input_folder):
     if filename.lower().endswith('.png'):
         image_path = os.path.join(input_folder, filename)
         image = Image.open(image_path).convert('RGB')
         
-        # Преобразование в полутоновое изображение
         gray_image = rgb_to_grayscale(image)
         gray_output_path = os.path.join(output_folder, f'grayscale_{filename}')
         gray_image.save(gray_output_path)
         
-        # Адаптивная бинаризация NICK с окном 3x3
         binary_image = adaptive_threshold_nick(gray_image, window_size=3)
         binary_output_path = os.path.join(output_folder, f'binarized_nick_{filename}')
         binary_image.save(binary_output_path)

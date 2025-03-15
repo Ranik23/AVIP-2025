@@ -43,7 +43,7 @@
 ### Пример 2: Изображение шахмат
 
 #### Исходное:
-![Исходное](../pictures_src/сhess.bmp)
+![Исходное](../pictures_src/chess.bmp)
 
 #### После "стирания бахромы":
 ![После "стирания бахромы"](../pictures_results/opened_chess.bmp)
@@ -65,17 +65,28 @@
 ![Разностное изображение](../pictures_results/diff_house.bmp)
 
 
-
-### Пример 4: Тестовое
+### Пример 5: X-ray
 
 #### Исходное:
-![Исходное](../pictures_src/Бахрома.png)
+![Исходное](../pictures_src/x-ray.bmp)
 
 #### После "стирания бахромы":
-![После "стирания бахромы"](../pictures_results/opened_Бахрома.bmp)
+![После "стирания бахромы"](../pictures_results/opened_x-ray.bmp)
 
 #### Разностное изображение
-![Разностное изображение](../pictures_results/diff_Бахрома.bmp)
+![Разностное изображение](../pictures_results/diff_x-ray.bmp)
+
+
+### Пример 5: Ghoul
+
+#### Исходное:
+![Исходное](../pictures_src/ghoul.bmp)
+
+#### После "стирания бахромы":
+![После "стирания бахромы"](../pictures_results/opened_ghoul.bmp)
+
+#### Разностное изображение
+![Разностное изображение](../pictures_results/diff_ghoul.bmp)
 
 
 ---

@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import os
 
 
-# Определение операторов Кайяли
 kernel_gx = np.array([[6, 0, -6],
                       [0, 0, 0],
                       [-6, 0, 6]], dtype=np.float32)
@@ -22,6 +21,19 @@ if not os.path.exists(output_folder):
 
 image_files = [f for f in os.listdir(input_folder) if f.endswith('.png')]
 
+def apply_kernel(image, kernel):
+    kernel_size = kernel.shape[0]
+    pad_size = kernel_size // 2
+    padded_image = np.pad(image, ((pad_size, pad_size), mode='constant'))
+    output = np.zeros_like(image, dtype=np.float32)
+    
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            output[i, j] = np.sum(padded_image[i:i+kernel_size, j:j+kernel_size] * kernel)
+    
+    return output
+
+
 for image_file in image_files:
     image_path = os.path.join(input_folder, image_file)
 
@@ -34,7 +46,6 @@ for image_file in image_files:
     
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Применение оператора Кайяли
     gradient_x = cv2.filter2D(gray_image, cv2.CV_32F, kernel_gx)
     gradient_y = cv2.filter2D(gray_image, cv2.CV_32F, kernel_gy)
 
@@ -45,10 +56,8 @@ for image_file in image_files:
 
     gradient = gradient.astype(np.float32)
 
-     # Нормализация градиента к диапазону 0-255
     gradient_normalized = cv2.normalize(gradient, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
 
-     # Бинаризация градиента
     _, binary_gradient = cv2.threshold(gradient_normalized, 50, 255, cv2.THRESH_BINARY)
 
     base_name = os.path.splitext(image_file)[0]
