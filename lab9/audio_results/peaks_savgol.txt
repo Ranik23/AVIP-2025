@@ -1,0 +1,10 @@
+Time: 75.668s, Frequency: 602.93Hz, Amplitude: 3.16
+Time: 75.656s, Frequency: 559.86Hz, Amplitude: 2.68
+Time: 51.020s, Frequency: 559.86Hz, Amplitude: 2.30
+Time: 51.183s, Frequency: 602.93Hz, Amplitude: 2.22
+Time: 36.107s, Frequency: 602.93Hz, Amplitude: 2.14
+Time: 36.119s, Frequency: 646.00Hz, Amplitude: 2.08
+Time: 19.348s, Frequency: 646.00Hz, Amplitude: 2.04
+Time: 20.021s, Frequency: 301.46Hz, Amplitude: 2.02
+Time: 51.020s, Frequency: 602.93Hz, Amplitude: 2.02
+Time: 51.136s, Frequency: 559.86Hz, Amplitude: 2.00

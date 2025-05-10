@@ -1,0 +1,10 @@
+Time: 15.052s, Frequency: 1894.92Hz, Amplitude: 14.30
+Time: 6.885s, Frequency: 1981.05Hz, Amplitude: 13.10
+Time: 15.064s, Frequency: 1851.86Hz, Amplitude: 12.62
+Time: 7.303s, Frequency: 1851.86Hz, Amplitude: 10.35
+Time: 9.201s, Frequency: 2670.12Hz, Amplitude: 9.89
+Time: 34.017s, Frequency: 1679.59Hz, Amplitude: 8.56
+Time: 4.145s, Frequency: 1679.59Hz, Amplitude: 7.90
+Time: 7.291s, Frequency: 1894.92Hz, Amplitude: 7.86
+Time: 2.990s, Frequency: 2540.92Hz, Amplitude: 7.12
+Time: 6.891s, Frequency: 2024.12Hz, Amplitude: 5.96
