@@ -13,7 +13,9 @@ def create_readme(csv_path, images_path, inverse_path, profiles_path, readme_pat
         with open(readme_path, 'w', encoding='utf-8') as readme_file:
             readme_file.write("# Лабораторная работа №5. Выделение признаков символов\n\n")
 
-            letters_to_process = ['а', 'б', 'в', 'г', 'д']
+            letters_to_process = ['е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т',
+                'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я'
+            ]
             for row in reader:
                 if row['letter'] in letters_to_process:
                     symbol = row['letter']

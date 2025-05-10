@@ -121,3 +121,4 @@ Correlation after  contrast: [[0.99342601 0.98899165 0.99162825 0.98864645]]
 Файл: field.png
 Correlation before contrast: [[0.97538465 0.98135147 0.97729104 0.97307811]]
 Correlation after  contrast: [[0.99174803 0.9941015  0.9931268  0.99186592]]
+```

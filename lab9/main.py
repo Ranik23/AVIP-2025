@@ -11,7 +11,7 @@ RESULTS_DIR = 'lab9/audio_results'
 os.makedirs(SRC_DIR, exist_ok=True)
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
-AUDIO_FILE    = os.path.join(SRC_DIR, "record.wav")  # Уже существующий аудиофайл
+AUDIO_FILE    = os.path.join(SRC_DIR, "record.wav")
 FILTERED_WAV_WIENER = os.path.join(RESULTS_DIR, "denoised_wiener.wav")
 FILTERED_WAV_SAVGOL = os.path.join(RESULTS_DIR, "denoised_savgol.wav")
 PLOT_BEFORE   = os.path.join(RESULTS_DIR, "spec_before.png")
