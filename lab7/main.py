@@ -55,7 +55,6 @@ for letter in ALPHABET:
     right  = min(letter_bbox[2] + pad, CANVAS_SIZE[0])
     bottom = min(letter_bbox[3] + pad, CANVAS_SIZE[1])
 
-    # 5. Обрезать и сохранить
     cropped = img.crop((left, top, right, bottom))
     cropped.save(os.path.join(OUTPUT_DIR, f'{letter}.bmp'), format='BMP')
 
