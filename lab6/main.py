@@ -16,10 +16,12 @@ def to_binary(path: str) -> np.ndarray:
 
 def preprocess_image(bin_img: np.ndarray) -> np.ndarray:
     """Применяет морфологические операции для улучшения сегментации."""
-    # Увеличиваем внимание на вертикальные структуры, используя вертикальное расширение
-    vertical_kernel = np.ones((5, 1), np.uint8)
+    # Используем ядро для горизонтальных и вертикальных структур
+    vertical_kernel = np.ones((5, 1), np.uint8)  # Вертикальное расширение для хвостиков
+    horizontal_kernel = np.ones((1, 5), np.uint8)  # Горизонтальное расширение для соединения
     dilated = cv2.dilate(bin_img, vertical_kernel)  # Увеличиваем вертикальные компоненты
-    closed = closing(dilated, square(3))  # Закрытие для соединения частей букв
+    dilated = cv2.dilate(dilated, horizontal_kernel)  # Увеличиваем горизонтальные компоненты для хвостиков
+    closed = closing(dilated, square(3))  # Закрытие для улучшения соединения частей
     return closed
 
 def connected_components(bin_img: np.ndarray) -> list:

@@ -1,4 +1,0 @@
-horizontal:
-4 3 3 3 3 3 3 4 4 3 3 3 4
-vertical:
-13 13 13 4
