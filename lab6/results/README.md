@@ -4,7 +4,7 @@
 ![phrase](../pictures_src/phrase.bmp)
 
 ## Сегментация
-![boxes](../pictures_results/phrase_boxes_fixed.bmp)
+![boxes](../pictures_results/phrase_boxes_manual.bmp)
 
 ## Дополнительные материалы
 Все файлы сегментации (профили, вырезанные буквы) находятся в каталоге `pictures_results/`.
