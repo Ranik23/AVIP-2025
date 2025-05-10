@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 
-SRC_PATH     = Path("lab7/pictures_src/phrase.bmp")
+SRC_PATH     = Path("lab7/pictures_src/")
 ALPHABET_DIR = Path("lab7/alphabet")
 DST_DIR      = Path("lab7/pictures_results")
 PHRASE_GT    = "любите свою семью"
@@ -156,32 +156,37 @@ def main():
     tpl_stack, keys = load_templates()
 
     print("[2] Сегментация и распознавание…")
-    recog, boxes, letters, scores = recognise_image(SRC_PATH, tpl_stack, keys)
-    errs, pct = accuracy(recog, PHRASE_GT)
+    
+    # Перебираем все BMP файлы в директории SRC_PATH
+    for img_path in SRC_PATH.glob("*.bmp"):
+        print(f"\nОбрабатывается: {img_path}")
+        recog, boxes, letters, scores = recognise_image(img_path, tpl_stack, keys)
+        errs, pct = accuracy(recog, PHRASE_GT)
 
-    print(f"\nРаспознано : {recog}")
-    print(f"Эталон     : {PHRASE_GT}")
-    print(f"Ошибок     : {errs}/{len(PHRASE_GT)}  |  Точность: {pct:.2f}%")
+        print(f"\nРаспознано : {recog}")
+        print(f"Эталон     : {PHRASE_GT}")
+        print(f"Ошибок     : {errs}/{len(PHRASE_GT)}  |  Точность: {pct:.2f}%")
 
-    img = Image.open(SRC_PATH).convert("RGB")
-    draw = ImageDraw.Draw(img)
-    for box in boxes:
-        draw.rectangle([(box[0], box[1]), (box[2], box[3])], outline="red", width=1)
-    img.save(DST_DIR / "phrase_boxes_fixed.bmp")
+        # Сохраняем изображение с прямоугольниками вокруг символов
+        img = Image.open(img_path).convert("RGB")
+        draw = ImageDraw.Draw(img)
+        for box in boxes:
+            draw.rectangle([(box[0], box[1]), (box[2], box[3])], outline="red", width=1)
+        img.save(DST_DIR / f"{img_path.stem}_boxes_fixed.bmp")
 
-    hyp_path = DST_DIR / "best_hypotheses.txt"
-    with hyp_path.open("w", encoding="utf-8") as f:
-        f.write("Выводятся лучшие гипотезы\n\n")
-        idx = 1
-        for ch, sc in zip(letters, scores):
-            # пропускаем пробелы
-            if ch == " ":
-                continue
-            f.write(f"{idx:2d}: '{ch}' - {sc:.6f}\n")
-            idx += 1
-    print("[✓] Файл с гипотезами →", hyp_path)
+        # Сохраняем лучшие гипотезы в текстовый файл
+        hyp_path = DST_DIR / f"{img_path.stem}_best_hypotheses.txt"
+        with hyp_path.open("w", encoding="utf-8") as f:
+            f.write("Выводятся лучшие гипотезы\n\n")
+            idx = 1
+            for ch, sc in zip(letters, scores):
+                if ch == " ":  # пропускаем пробелы
+                    continue
+                f.write(f"{idx:2d}: '{ch}' - {sc:.6f}\n")
+                idx += 1
+        print(f"[✓] Файл с гипотезами → {hyp_path}")
+
     print("[✓] Готово, остальные результаты — в", DST_DIR)
-
 
 if __name__ == "__main__":
     main()
