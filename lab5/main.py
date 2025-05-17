@@ -10,22 +10,27 @@ output_csv_path = 'lab5/features.csv'
 
 os.makedirs(profiles_path, exist_ok=True)
 
-def calculate_weight(image_array):
-    return np.sum(image_array) / 255
+def binarize(image_array, threshold=128):
+    # Возвращает бинарное изображение: 1 — пиксели символа, 0 — фон
+    return (image_array < threshold).astype(np.float32)
 
-# Функция для расчета центра тяжести
+def calculate_weight(image_array):
+    bin_img = binarize(image_array)
+    return np.sum(bin_img)
+
 def calculate_center_of_mass(image_array):
+    bin_img = binarize(image_array)
     total_weight = calculate_weight(image_array)
     y_indices, x_indices = np.indices(image_array.shape)
-    center_y = np.sum(y_indices * image_array) / total_weight / 255
-    center_x = np.sum(x_indices * image_array) / total_weight / 255
+    center_y = np.sum(y_indices * bin_img) / total_weight
+    center_x = np.sum(x_indices * bin_img) / total_weight
     return center_y, center_x
 
-# Функция для расчета моментов инерции
 def calculate_inertia(image_array, center_y, center_x):
+    bin_img = binarize(image_array)
     y_indices, x_indices = np.indices(image_array.shape)
-    inertia_y = np.sum((x_indices - center_x)**2 * image_array) / 255
-    inertia_x = np.sum((y_indices - center_y)**2 * image_array) / 255
+    inertia_y = np.sum((x_indices - center_x)**2 * bin_img)
+    inertia_x = np.sum((y_indices - center_y)**2 * bin_img)
     return inertia_y, inertia_x
 
 # Функция для разделения изображения на четверти
@@ -46,7 +51,7 @@ def calculate_features(image_array):
     # Разделение на четверти
     quarter_I, quarter_II, quarter_III, quarter_IV = split_into_quarters(image_array)
 
-    # Вес и относительный вес для каждой четверти
+    # Вес и относительный вес для каждой четверти (с бинаризацией)
     weight_I = calculate_weight(quarter_I)
     weight_II = calculate_weight(quarter_II)
     weight_III = calculate_weight(quarter_III)
@@ -57,7 +62,6 @@ def calculate_features(image_array):
     relative_weight_III = weight_III / (total_pixels / 4)
     relative_weight_IV = weight_IV / (total_pixels / 4)
 
-    # Общий вес и относительный вес
     total_weight = weight_I + weight_II + weight_III + weight_IV
     relative_total_weight = total_weight / total_pixels
 
@@ -71,9 +75,10 @@ def calculate_features(image_array):
     relative_inertia_y = inertia_y / (total_pixels * width**2)
     relative_inertia_x = inertia_x / (total_pixels * height**2)
 
-    # Профили X и Y
-    profile_x = np.sum(image_array, axis=0) / 255  # Профиль по X (сумма по строкам)
-    profile_y = np.sum(image_array, axis=1) / 255  # Профиль по Y (сумма по столбцам)
+    # Профили X и Y — считаем по бинарному изображению, чтобы не влиял оттенок серого
+    bin_img = binarize(image_array)
+    profile_x = np.sum(bin_img, axis=0)
+    profile_y = np.sum(bin_img, axis=1)
 
     return {
         'weight_I': weight_I,
