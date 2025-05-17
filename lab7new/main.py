@@ -128,12 +128,11 @@ def recognize_from_bmp(bmp_path, alphabet_csv_path, ground_truth, output_path="r
 
     print("Признаки входных символов:")
     for char, feature in zip(ground_truth, input_features):  
-        print(f"Буква: {char}, Признаки: {[float(f) for f in feature]}")
-
+        print(f"Буква: {char}, Признаки: {[f'{f:.3f}' for f in feature]}")
 
     print("\nПризнаки алфавита:")
     for char, feature in zip(alphabet_labels, alphabet_features):
-        print(f"Буква: {char}, Признаки: {[float(f) for f in feature]}")
+        print(f"Буква: {char}, Признаки: {[f'{f:.3f}' for f in feature]}")
 
     scaler = StandardScaler()
     all_features = alphabet_features + input_features
@@ -164,6 +163,7 @@ def recognize_from_bmp(bmp_path, alphabet_csv_path, ground_truth, output_path="r
     print(f"Точность:           {accuracy:.2f}%")
 
     return recognized, accuracy, hypotheses
+
 
 def main():
     recognized, accuracy, hypotheses = recognize_from_bmp(bmp_path, alphabet_csv_path, ground_truth, output_path)

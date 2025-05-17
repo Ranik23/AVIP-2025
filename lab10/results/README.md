@@ -13,22 +13,13 @@
 
 ![voice](spec_i.png)
 
-![voice](f0_i.png)
-
-![voice](peaks_i.png)
 
 ## Спектрограмма Лай
 
 ![voice](spec_gav.png)
 
-![voice](f0_gav.png)
-
-![voice](peaks_gav.png)
 
 ## Спектрограмма А
 
 ![voice](spec_a.png)
 
-![voice](f0_a.png)
-
-![voice](peaks_a.png)

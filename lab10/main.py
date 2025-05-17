@@ -92,26 +92,32 @@ def estimate_f0_and_overtones(y, sr, fmin=50, fmax=800):
         k += 1
     return f0_med, harmonics
 
+
+
+
+
+
+
 def estimate_formants(y, sr, n_formants=3, lpc_order=16):
-    # Обрезаем сигнал, чтобы избежать переходных процессов
     y = y[:min(len(y), 2048 * 5)]
 
-    # LPC анализ
     a = librosa.lpc(y, order=lpc_order)
 
-    # Находим корни полинома
     roots = np.roots(a)
-    roots = roots[np.imag(roots) >= 0.01]  # Убираем почти действительные
+    roots = roots[np.imag(roots) >= 0.01] 
 
-    # Вычисляем частоты из углов (аргументов)
     angles = np.angle(roots)
     freqs = angles * sr / (2 * np.pi)
 
-    # Оставляем только положительные частоты
-    freqs = freqs[(freqs > 50) & (freqs < sr / 2)]  # От 50 Гц до Nyquist
+    freqs = freqs[(freqs > 50) & (freqs < sr / 2)]
 
     freqs = np.sort(freqs)
     return freqs[:n_formants]
+
+
+
+
+
 
 
 
