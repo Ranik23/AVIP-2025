@@ -2,17 +2,17 @@ File: i
 Min freq: 23.4 Hz, Max freq: 3281.2 Hz
 Fundamental (median): 154.3 Hz
 Overtones: 154.3, 308.7
-Formants: 672.8, 24000.0 Hz
+Formants: 2110.5, 6224.6, 9868.9 Hz
 
 File: a
 Min freq: 23.4 Hz, Max freq: 2789.1 Hz
 Fundamental (median): 172.7 Hz
 Overtones: 518.2, 691.0
-Formants: 746.6, 24000.0, 24000.0 Hz
+Formants: 3403.6, 7225.7, 10309.9 Hz
 
 File: gav
 Min freq: 23.4 Hz, Max freq: 1242.2 Hz
 Fundamental (median): 104.5 Hz
 Overtones: 208.9, 522.3
-Formants: 602.8, 1111.7, 6689.9 Hz
+Formants: 198.4 Hz
 
