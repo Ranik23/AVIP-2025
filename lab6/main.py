@@ -1,8 +1,8 @@
 import os
 import numpy as np
 from PIL import Image, ImageDraw
-import cv2
-from skimage.morphology import closing, square, dilation
+from scipy.ndimage import label, find_objects
+from skimage.morphology import square, dilation, closing, rectangle
 
 SRC_PATH = "lab6/pictures_src/phrase3.bmp"
 DST_DIR = "lab6/pictures_results"
@@ -15,24 +15,32 @@ def to_binary(path: str) -> np.ndarray:
     return (arr < 128).astype(np.uint8)
 
 def preprocess_image(bin_img: np.ndarray) -> np.ndarray:
-    """Применяет морфологические операции для улучшения сегментации."""
-    # Используем ядро для горизонтальных и вертикальных структур
-    vertical_kernel = np.ones((5, 1), np.uint8)  # Вертикальное расширение для хвостиков
-    horizontal_kernel = np.ones((1, 5), np.uint8)  # Горизонтальное расширение для соединения
-    dilated = cv2.dilate(bin_img, vertical_kernel)  # Увеличиваем вертикальные компоненты
-    dilated = cv2.dilate(dilated, horizontal_kernel)  # Увеличиваем горизонтальные компоненты для хвостиков
-    closed = closing(dilated, square(3))  # Закрытие для улучшения соединения частей
+    """Применяет морфологические операции для соединения элементов символов."""
+    # Сильное вертикальное расширение для соединения точек, крючков и т.п.
+    vertical_dilated = dilation(bin_img, rectangle(10, 1))
+    
+    # Затем горизонтальное расширение для соединения частей внутри буквы
+    fully_dilated = dilation(vertical_dilated, rectangle(1, 5))
+    
+    # Закрытие — финальный шаг для устранения разрывов
+    closed = closing(fully_dilated, square(3))
     return closed
 
 def connected_components(bin_img: np.ndarray) -> list:
     """Находит компоненты связности и возвращает их ограничительные прямоугольники."""
-    contours, _ = cv2.findContours(bin_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    labeled, _ = label(bin_img)
+    objects = find_objects(labeled)
     boxes = []
-    for contour in contours:
-        x, y, w, h = cv2.boundingRect(contour)
-        if w * h > 10:  # Отфильтровываем слишком маленькие компоненты
-            boxes.append((x, y, x + w, y + h))
+    for sl in objects:
+        y0, y1 = sl[0].start, sl[0].stop
+        x0, x1 = sl[1].start, sl[1].stop
+        if (x1 - x0) * (y1 - y0) > 10:
+            boxes.append((x0, y0, x1, y1))
     return boxes
+
+def profiles(bin_img: np.ndarray):
+    """Возвращает горизонтальные и вертикальные профили."""
+    return bin_img.sum(axis=1), bin_img.sum(axis=0)
 
 def save_letter_profiles(bin_img: np.ndarray, boxes: list):
     """Сохраняет вырезанные изображения символов и их профили."""
@@ -42,16 +50,11 @@ def save_letter_profiles(bin_img: np.ndarray, boxes: list):
         bmp_name = f"{idx:02d}.bmp"
         char_img.save(os.path.join(DST_DIR, bmp_name))
 
-        # Горизонтальные и вертикальные профили
         h_prof, v_prof = profiles(patch)
         txt_name = f"{idx:02d}.txt"
         with open(os.path.join(DST_DIR, txt_name), "w", encoding="utf-8") as f:
             f.write("horizontal:\n" + " ".join(map(str, h_prof.tolist())) + "\n")
             f.write("vertical:\n"   + " ".join(map(str, v_prof.tolist())))
-
-def profiles(bin_img: np.ndarray):
-    """Возвращает горизонтальные и вертикальные профили."""
-    return bin_img.sum(axis=1), bin_img.sum(axis=0)
 
 def draw_boxes(path: str, boxes: list):
     """Рисует ограничивающие прямоугольники для символов."""
@@ -63,13 +66,11 @@ def draw_boxes(path: str, boxes: list):
     img.save(os.path.join(DST_DIR, "phrase_boxes.bmp"))
 
 def main():
-    """Основная функция."""
-    bin_img = to_binary(SRC_PATH)  # Преобразуем изображение в бинарное
-    bin_img = preprocess_image(bin_img)  # Применяем морфологию для улучшения сегментации
-
-    boxes = connected_components(bin_img)  # Находим компоненты
-    draw_boxes(SRC_PATH, boxes)  # Рисуем компоненты на изображении
-    save_letter_profiles(bin_img, boxes)  # Сохраняем изображения символов и их профили
+    bin_img = to_binary(SRC_PATH)
+    bin_img = preprocess_image(bin_img)
+    boxes = connected_components(bin_img)
+    draw_boxes(SRC_PATH, boxes)
+    save_letter_profiles(bin_img, boxes)
 
     print(f"Найдено символов: {len(boxes)}")
     print("Порядок символов:")
