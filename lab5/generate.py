@@ -35,7 +35,7 @@ for letter in letters:
     cropped = img.crop((left, top, right + 1, bottom + 1))
 
     # Добавляем белую рамку вокруг (например, 10 пикселей)
-    padding = 10
+    padding = 1
     padded_size = (cropped.width + 2 * padding, cropped.height + 2 * padding)
     final_img = Image.new('L', padded_size, color=255)
     final_img.paste(cropped, (padding, padding))
