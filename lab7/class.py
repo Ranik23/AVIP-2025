@@ -46,15 +46,20 @@ def normalize_bin(arr: np.ndarray, size: tuple[int, int] = SIZE) -> np.ndarray:
 
 
 def segment_by_profiles(bin_img: np.ndarray, empty_thresh: int = 1):
-    """Возвращает bounding-box'ы символов, без пробелов."""
+    """Возвращает bounding-box'ы символов, без пробелов, с улучшенной сегментацией для русских букв."""
     h, w = bin_img.shape
     vert = bin_img.sum(axis=0)
     splits, in_char = [], False
 
+    # Улучшенное определение границ символов с учетом особенностей русских букв
     for x, v in enumerate(vert):
         if not in_char and v > empty_thresh:
             in_char, x0 = True, x
         elif in_char and v <= empty_thresh:
+            # Проверяем, не является ли это тонким элементом (например, хвост у "й")
+            lookahead = min(x + 3, w - 1)  # Смотрим на 3 пикселя вперед
+            if any(vert[x+1:lookahead+1] > empty_thresh):
+                continue  # Пропускаем, это тонкий элемент
             splits.append((x0, x - 1))
             in_char = False
     if in_char:
@@ -66,12 +71,15 @@ def segment_by_profiles(bin_img: np.ndarray, empty_thresh: int = 1):
         horiz = slice_.sum(axis=1)
         ys = np.where(horiz > empty_thresh)[0]
         if ys.size:
-            boxes.append((x0, ys[0], x1, ys[-1]))
+            # Расширяем bounding box на 1 пиксель сверху и снизу для учета диакритических знаков
+            y0 = max(0, ys[0] - 1)
+            y1 = min(h - 1, ys[-1] + 1)
+            boxes.append((x0, y0, x1, y1))
     return boxes
 
 
-def split_wide_boxes(boxes, bin_img, factor: float = 1.4):
-    """Если бокс слишком широкий (клейкие буквы), делит по минимуму профиля."""
+def split_wide_boxes(boxes, bin_img, factor: float = 1.5, min_cut_width: int = 3):
+    """Улучшенное разделение широких боксов для русских букв."""
     widths = [x1 - x0 + 1 for x0, _, x1, _ in boxes]
     if not widths:
         return boxes
@@ -82,23 +90,37 @@ def split_wide_boxes(boxes, bin_img, factor: float = 1.4):
         if w > avg_w * factor:
             sub = bin_img[y0:y1 + 1, x0:x1 + 1]
             vert = sub.sum(axis=0)
-            m = max(w // 8, 1)
+            
+            # Ищем подходящее место для разделения
+            m = max(w // 4, min_cut_width)  # Увеличиваем область поиска
             local = vert[m:-m]
+            
             if local.size:
-                cut_off = np.argmin(local) + m
-                cut = x0 + cut_off
-                out += [(x0, y0, cut, y1), (cut + 1, y0, x1, y1)]
-                continue
+                # Ищем наиболее узкое место (минимум вертикального профиля)
+                smoothed = np.convolve(local, np.ones(3)/3, mode='valid')  # Сглаживание
+                if len(smoothed) > 0:
+                    cut_rel = np.argmin(smoothed) + 1  # +1 из-за valid режима
+                    cut_off = cut_rel + m
+                    
+                    # Проверяем, что разделение имеет смысл
+                    left_width = cut_off
+                    right_width = w - cut_off - 1
+                    if left_width >= min_cut_width and right_width >= min_cut_width:
+                        cut = x0 + cut_off
+                        out += [(x0, y0, cut, y1), (cut + 1, y0, x1, y1)]
+                        continue
+        
         out.append((x0, y0, x1, y1))
     return out
 
 
-def gap_is_space(prev_box, curr_box, ratio=0.5):
+def gap_is_space(prev_box, curr_box, ratio=1.2):
+    """Улучшенное определение пробелов с учетом особенностей русских букв."""
     if prev_box is None:
         return False
     gap = curr_box[0] - prev_box[2]
-    return gap > (prev_box[2] - prev_box[0]) * ratio
-
+    avg_char_width = (prev_box[2] - prev_box[0] + curr_box[2] - curr_box[0]) / 2
+    return gap > avg_char_width * ratio
 
 def load_templates():
     tpls = []
