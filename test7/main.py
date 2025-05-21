@@ -9,12 +9,12 @@ import os
 
 
 recognizedd = "всем привет"
-bmp_path = "lab7new/pictures_src/phrase.bmp"
+bmp_path = "test7/pictures_src/phrase2.bmp"
 alphabet_csv_path = "lab5/features.csv" 
 ground_truth = "всем привет" 
-output_path = "lab7new/results/output_results.txt" 
-segment_dir = "lab7new/segments"
-inv_dir = "lab7new/invert_segments"
+output_path = "test7/results/output_results.txt" 
+segment_dir = "test7/segments"
+inv_dir = "test7/invert_segments"
 
 
 def binarize(image_array, threshold=128):

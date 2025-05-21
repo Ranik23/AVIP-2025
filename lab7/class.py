@@ -146,9 +146,28 @@ def recognise_image(path: Path, tpl_stack: np.ndarray, keys: list[str]):
     return result, boxes, letters, scores
 
 def accuracy(pred: str, gt: str):
-    m = max(len(pred), len(gt))
-    errs = sum(1 for a, b in zip(pred.ljust(m), gt.ljust(m)) if a != b)
-    return errs, 100 * (1 - errs / m)
+    dist = levenshtein(pred, gt)
+    max_len = max(len(pred), len(gt))
+    return dist, 100 * (1 - dist / max_len) if max_len else 100.0
+
+def levenshtein(a: str, b: str) -> int:
+    dp = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        prev, dp[0] = dp[0], i
+        for j, cb in enumerate(b, 1):
+            cur = dp[j]
+            cost = 0 if ca == cb else 1
+            dp[j] = min(dp[j] + 1,       # удаление
+                        dp[j - 1] + 1,   # вставка
+                        prev + cost)     # замена
+            prev = cur
+    return dp[-1]
+
+def accuracy(pred: str, gt: str):
+    dist = levenshtein(pred, gt)
+    max_len = max(len(pred), len(gt))
+    return dist, 100 * (1 - dist / max_len) if max_len else 100.0
+
 
 
 def main():
