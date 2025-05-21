@@ -74,8 +74,6 @@ def simple_segment(image, target_size=(150, 210)):
 
     return symbols, inverted_symbols
 
-
-
 def split_into_quarters(image_array):
     height, width = image_array.shape
     mid_x, mid_y = width // 2, height // 2

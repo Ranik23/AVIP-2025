@@ -93,11 +93,6 @@ def estimate_f0_and_overtones(y, sr, fmin=50, fmax=800):
     return f0_med, harmonics
 
 
-
-
-
-
-
 def estimate_formants(y, sr, n_formants=3, lpc_order=16):
     y = y[:min(len(y), 2048 * 5)]
 
@@ -113,12 +108,6 @@ def estimate_formants(y, sr, n_formants=3, lpc_order=16):
 
     freqs = np.sort(freqs)
     return freqs[:n_formants]
-
-
-
-
-
-
 
 
 def main():

@@ -11,7 +11,7 @@
 
 ### Исходное изображение
 
-![phrase](../pictures_src/phrase.bmp)
+![phrase](../pictures_src/phrase2.bmp)
 
 ### Классификация символов на основе известных признаков
 
