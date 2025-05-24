@@ -8,10 +8,9 @@ import matplotlib.pyplot as plt
 import os
 
 
-recognizedd = "всем привет"
-bmp_path = "test7/pictures_src/phrase2.bmp"
+bmp_path = "test7/pictures_src/phrase3.bmp"
 alphabet_csv_path = "lab5/features.csv" 
-ground_truth = "всем привет" 
+ground_truth = "любите свою семью" 
 output_path = "test7/results/output_results.txt" 
 segment_dir = "test7/segments"
 inv_dir = "test7/invert_segments"

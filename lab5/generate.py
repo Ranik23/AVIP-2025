@@ -10,7 +10,6 @@ font_path = "Times New Roman.ttf"
 font = ImageFont.truetype(font_path, 200)
 
 for letter in letters:
-    # Создаем большой холст
     canvas_size = (300, 300)
     img = Image.new('L', canvas_size, color=255)
     draw = ImageDraw.Draw(img)

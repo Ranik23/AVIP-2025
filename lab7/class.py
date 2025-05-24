@@ -51,15 +51,13 @@ def segment_by_profiles(bin_img: np.ndarray, empty_thresh: int = 1):
     vert = bin_img.sum(axis=0)
     splits, in_char = [], False
 
-    # Улучшенное определение границ символов с учетом особенностей русских букв
     for x, v in enumerate(vert):
         if not in_char and v > empty_thresh:
             in_char, x0 = True, x
         elif in_char and v <= empty_thresh:
-            # Проверяем, не является ли это тонким элементом (например, хвост у "й")
-            lookahead = min(x + 3, w - 1)  # Смотрим на 3 пикселя вперед
+            lookahead = min(x + 3, w - 1) 
             if any(vert[x+1:lookahead+1] > empty_thresh):
-                continue  # Пропускаем, это тонкий элемент
+                continue  
             splits.append((x0, x - 1))
             in_char = False
     if in_char:
@@ -71,7 +69,6 @@ def segment_by_profiles(bin_img: np.ndarray, empty_thresh: int = 1):
         horiz = slice_.sum(axis=1)
         ys = np.where(horiz > empty_thresh)[0]
         if ys.size:
-            # Расширяем bounding box на 1 пиксель сверху и снизу для учета диакритических знаков
             y0 = max(0, ys[0] - 1)
             y1 = min(h - 1, ys[-1] + 1)
             boxes.append((x0, y0, x1, y1))
@@ -91,18 +88,15 @@ def split_wide_boxes(boxes, bin_img, factor: float = 1.5, min_cut_width: int = 3
             sub = bin_img[y0:y1 + 1, x0:x1 + 1]
             vert = sub.sum(axis=0)
             
-            # Ищем подходящее место для разделения
-            m = max(w // 4, min_cut_width)  # Увеличиваем область поиска
+            m = max(w // 4, min_cut_width)  
             local = vert[m:-m]
             
             if local.size:
-                # Ищем наиболее узкое место (минимум вертикального профиля)
-                smoothed = np.convolve(local, np.ones(3)/3, mode='valid')  # Сглаживание
+                smoothed = np.convolve(local, np.ones(3)/3, mode='valid') 
                 if len(smoothed) > 0:
-                    cut_rel = np.argmin(smoothed) + 1  # +1 из-за valid режима
+                    cut_rel = np.argmin(smoothed) + 1 
                     cut_off = cut_rel + m
                     
-                    # Проверяем, что разделение имеет смысл
                     left_width = cut_off
                     right_width = w - cut_off - 1
                     if left_width >= min_cut_width and right_width >= min_cut_width:
@@ -179,9 +173,9 @@ def levenshtein(a: str, b: str) -> int:
         for j, cb in enumerate(b, 1):
             cur = dp[j]
             cost = 0 if ca == cb else 1
-            dp[j] = min(dp[j] + 1,       # удаление
-                        dp[j - 1] + 1,   # вставка
-                        prev + cost)     # замена
+            dp[j] = min(dp[j] + 1,      
+                        dp[j - 1] + 1,   
+                        prev + cost)    
             prev = cur
     return dp[-1]
 
@@ -197,8 +191,7 @@ def main():
     tpl_stack, keys = load_templates()
 
     print("[2] Сегментация и распознавание…")
-    
-    # Перебираем все BMP файлы в директории SRC_PATH
+
     for img_path in SRC_PATH.glob("*.bmp"):
         print(f"\nОбрабатывается: {img_path}")
         recog, boxes, letters, scores = recognise_image(img_path, tpl_stack, keys)
@@ -208,20 +201,18 @@ def main():
         print(f"Эталон     : {PHRASE_GT}")
         print(f"Ошибок     : {errs}/{len(PHRASE_GT)}  |  Точность: {pct:.2f}%")
 
-        # Сохраняем изображение с прямоугольниками вокруг символов
         img = Image.open(img_path).convert("RGB")
         draw = ImageDraw.Draw(img)
         for box in boxes:
             draw.rectangle([(box[0], box[1]), (box[2], box[3])], outline="red", width=1)
         img.save(DST_DIR / f"{img_path.stem}_boxes_fixed.bmp")
 
-        # Сохраняем лучшие гипотезы в текстовый файл
         hyp_path = DST_DIR / f"{img_path.stem}_best_hypotheses.txt"
         with hyp_path.open("w", encoding="utf-8") as f:
             f.write("Выводятся лучшие гипотезы\n\n")
             idx = 1
             for ch, sc in zip(letters, scores):
-                if ch == " ":  # пропускаем пробелы
+                if ch == " ": 
                     continue
                 f.write(f"{idx:2d}: '{ch}' - {sc:.6f}\n")
                 idx += 1

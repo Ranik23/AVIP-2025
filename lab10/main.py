@@ -93,22 +93,57 @@ def estimate_f0_and_overtones(y, sr, fmin=50, fmax=800):
     return f0_med, harmonics
 
 
-def estimate_formants(y, sr, n_formants=3, lpc_order=16):
-    y = y[:min(len(y), 2048 * 5)]
-
-    a = librosa.lpc(y, order=lpc_order)
-
+def estimate_formants(y, sr, n_formants=3, lpc_order=None):
+    # Автоматический выбор порядка LPC, если не задан
+    if lpc_order is None:
+        lpc_order = int(2 + sr / 1000)  # Эмпирическое правило для речевых сигналов
+    
+    # Выбираем сегмент сигнала для анализа (около 20-30 мс)
+    frame_length = min(len(y), int(0.025 * sr))  # 25 мс
+    if frame_length < lpc_order * 2:
+        lpc_order = max(4, frame_length // 2)
+    
+    # Центральный сегмент сигнала
+    center = len(y) // 2
+    y_segment = y[center - frame_length//2 : center + frame_length//2]
+    y_segment = y_segment / np.max(np.abs(y_segment))
+    
+    # Оконная функция
+    window = np.hamming(len(y_segment))
+    y_windowed = y_segment * window
+    
+    # LPC анализ
+    a = librosa.lpc(y_windowed, order=lpc_order)
     roots = np.roots(a)
-    roots = roots[np.imag(roots) >= 0.01] 
-
-    angles = np.angle(roots)
+    
+    # Фильтрация корней:
+    # 1. Оставляем только корни с положительной мнимой частью (чтобы избежать дублирования)
+    roots = roots[np.imag(roots) > 0]
+    # 2. Устойчивые корни (внутри единичного круга)
+    roots = roots[np.abs(roots) < 0.999]
+    
+    # Преобразование в частоты и полосы
+    angles = np.arctan2(np.imag(roots), np.real(roots))
     freqs = angles * sr / (2 * np.pi)
-
-    freqs = freqs[(freqs > 50) & (freqs < sr / 2)]
-
-    freqs = np.sort(freqs)
-    return freqs[:n_formants]
-
+    bandwidths = -0.5 * (sr / (2 * np.pi)) * np.log(np.abs(roots))
+    
+    # Фильтрация по полосе (отбрасываем слишком широкие форманты)
+    mask = bandwidths < 400  # Эмпирический порог
+    freqs = freqs[mask]
+    bandwidths = bandwidths[mask]
+    
+    # Сортировка по частоте и выбор первых n_formants
+    if len(freqs) > 0:
+        idx = np.argsort(freqs)
+        freqs = freqs[idx]
+        # Отбираем только форманты в разумном диапазоне (50-5000 Гц)
+        freqs = freqs[(freqs > 50) & (freqs < 5000)]
+        if len(freqs) >= n_formants:
+            return freqs[:n_formants]
+    
+    # Возвращаем значения по умолчанию, если не удалось найти
+    default_formants = [500, 1500, 2500]  # Примерные средние значения для речи
+    return np.array(default_formants[:n_formants])
 
 def main():
     files = glob.glob(os.path.join(SRC_DIR, '*.wav'))
